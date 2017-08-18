@@ -12,7 +12,7 @@
  * License for the specific language governing permissions and limitations under the License.
  */
 
-package com.fe26.fp
+package com.fe26.fp.chapter2
 
 /**
   * .
@@ -38,8 +38,14 @@ object MyModule {
     msg.format(x, abs(x))
   }
 
+  /**
+    * Exercise 2.1: nth fibonacci.
+    *
+    * @param n nth fibonacci
+    * @return
+    */
   def fib(n: Int): Int = {
-    def go(n: Int, prev: Int, curr: Int): Int = if (n <= 1) prev else go(n - 1, curr, prev + curr)
+    def go(n: Int, prev: Int, curr: Int): Int = if (n <= 0) prev else go(n - 1, curr, prev + curr)
 
     go(n, 0, 1)
   }
@@ -53,5 +59,47 @@ object MyModule {
   def formatResult(n: Int, f: Int => Int): String = {
     val msg = "The result of %d is %d"
     msg.format(n, f(n))
+  }
+
+  /**
+    * Monomorphic function to find a String in an array.
+    *
+    * @param ss array of strings
+    * @param key string to look for
+    * @return index of first occurrence of key if found, -1 otherwise
+    */
+  def findFirst(ss: Array[String], key: String): Int = {
+    def go(i: Int): Int = if (i == ss.length) -1 else if (ss(i) == key) i else go(i + 1)
+
+    go(0)
+  }
+
+  /**
+    * Polymorphic function to find an element in an array.
+    *
+    * @param as an array of type A
+    * @param p
+    * @tparam A
+    * @return index of first occurrence of key if found, -1 otherwise
+    */
+  def findFirst[A](as: Array[A], p: A => Boolean ): Int = {
+    def go(i: Int): Int = if (i == as.length) -1 else if (p(as(i))) i else go(i + 1)
+
+    go(0)
+  }
+
+  /**
+    * Exercise 2.2: checks whether an array is sorted in accordance with given comparison function.
+    *
+    * @param as
+    * @param ordered
+    * @tparam A
+    * @return
+    */
+  def isSorted[A](as: Array[A], ordered: (A, A) => Boolean): Boolean = {
+    def loop(i: Int): Boolean =
+      if (i == as.length - 1) true else if (ordered(as(i), as(i + 1))) loop(i + 1) else false
+
+    loop(0)
   }
 }
