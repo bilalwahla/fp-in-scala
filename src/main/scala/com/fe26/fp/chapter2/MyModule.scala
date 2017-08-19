@@ -15,7 +15,7 @@
 package com.fe26.fp.chapter2
 
 /**
-  * .
+  * Chapter 2.
   *
   * @author bilalwahla
   */
@@ -41,8 +41,8 @@ object MyModule {
   /**
     * Exercise 2.1: nth fibonacci.
     *
-    * @param n nth fibonacci
-    * @return
+    * @param n number
+    * @return nth fibonacci
     */
   def fib(n: Int): Int = {
     def go(n: Int, prev: Int, curr: Int): Int = if (n <= 0) prev else go(n - 1, curr, prev + curr)
@@ -64,12 +64,12 @@ object MyModule {
   /**
     * Monomorphic function to find a String in an array.
     *
-    * @param ss array of strings
+    * @param as array of strings
     * @param key string to look for
     * @return index of first occurrence of key if found, -1 otherwise
     */
-  def findFirst(ss: Array[String], key: String): Int = {
-    def go(i: Int): Int = if (i == ss.length) -1 else if (ss(i) == key) i else go(i + 1)
+  def findFirst(as: Array[String], key: String): Int = {
+    def go(i: Int): Int = if (i == as.length) -1 else if (as(i) == key) i else go(i + 1)
 
     go(0)
   }
@@ -77,13 +77,13 @@ object MyModule {
   /**
     * Polymorphic function to find an element in an array.
     *
-    * @param as an array of type A
-    * @param p
-    * @tparam A
+    * @param aa an array
+    * @param p search logic
+    * @tparam A type of elements in the array
     * @return index of first occurrence of key if found, -1 otherwise
     */
-  def findFirst[A](as: Array[A], p: A => Boolean ): Int = {
-    def go(i: Int): Int = if (i == as.length) -1 else if (p(as(i))) i else go(i + 1)
+  def findFirst[A](aa: Array[A], p: A => Boolean ): Int = {
+    def go(i: Int): Int = if (i == aa.length) -1 else if (p(aa(i))) i else go(i + 1)
 
     go(0)
   }
@@ -91,15 +91,35 @@ object MyModule {
   /**
     * Exercise 2.2: checks whether an array is sorted in accordance with given comparison function.
     *
-    * @param as
-    * @param ordered
-    * @tparam A
-    * @return
+    * @param aa an array
+    * @param ordered ordering logic
+    * @tparam A type of elements in the array
+    * @return true or false. Whether the array is sorted
     */
-  def isSorted[A](as: Array[A], ordered: (A, A) => Boolean): Boolean = {
+  def isSorted[A](aa: Array[A], ordered: (A, A) => Boolean): Boolean = {
     def loop(i: Int): Boolean =
-      if (i == as.length - 1) true else if (ordered(as(i), as(i + 1))) loop(i + 1) else false
+      if (i == aa.length - 1) true else if (ordered(aa(i), aa(i + 1))) loop(i + 1) else false
 
     loop(0)
   }
+
+  /**
+    * Higher-order function for performing what’s called partial application.
+    */
+  def partial[A, B, C](a: A, f: (A, B) => C): B => C = b => f(a, b)
+
+  /**
+    * Exercise 2.3: Currying.
+    */
+  def curry[A, B, C](f: (A, B) => C): A => (B => C) = a => b => f(a, b)
+
+  /**
+    * Exercise 2.4: Uncurrying.
+    */
+  def uncurry[A, B, C](f: A => B => C): (A, B) => C = (a, b) => f(a)(b)
+
+  /**
+    * Exercise 2.5: Function composition.
+    */
+  def compose[A, B, C](f: B => C, g: A => B): A => C = a => f(g(a))
 }

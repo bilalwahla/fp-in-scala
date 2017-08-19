@@ -20,6 +20,9 @@ import com.fe26.fp.chapter2.MyModule._
 /**
   * Test specification for MyModule. Representing BDD using FunSpec style.
   *
+  * NOTE: perhaps more tests could be written but this is just an attempt to understand and apply
+  * the concepts.
+  *
   * @author bilalwahla
   */
 class MyModuleSuite extends FunSpec {
@@ -153,6 +156,38 @@ class MyModuleSuite extends FunSpec {
     describe("When checking if a unsorted string array is sorted") {
       it("Should return false") {
         assert(!isSorted(Array("abc", "bcd", "cde", "aaa", "def", "efg"), (s1: String, s2: String) => s1 < s2))
+      }
+    }
+  }
+
+  describe("Partial") {
+    describe("When an integer and a function that is a multiple of the integer and the other parameter, are passed in") {
+      it("should return a function that when passed another integer returns the multiple of the two") {
+        assert(partial(5, (a: Int, b: Int) => a * b)(5) == 25)
+      }
+    }
+  }
+
+  describe("Currying") {
+    describe("When a function that returns a multiple of the two parameters, is passed in") {
+      it("Should return a function that takes the first parameter value and return a function that takes the second parameter value") {
+        assert(curry((a: Int, b: Int) => a * b)(5)(5) == 25)
+      }
+    }
+  }
+
+  describe("Uncurrying") {
+    describe("When a curried function is passed in that takes an integer and returns a function that takes an integer and returns a multiple of the two") {
+      it("Should return a function that simply takes two integers and returns a product") {
+        assert(uncurry((a: Int) => (b: Int) => a * b)(5, 5) == 25)
+      }
+    }
+  }
+
+  describe("Function composition") {
+    describe("When two functions are passed in each taking an integer and returning a square") {
+      it("Should return a function that takes an integer, applies it to one function and feeds the result to another producing the final result") {
+        assert(compose((b: Int) => b * b, (a: Int) => a * a)(2) == 16)
       }
     }
   }
