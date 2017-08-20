@@ -87,7 +87,7 @@ class ListSpec extends FunSpec {
     describe("When asking for size of an empty list") {
       val emptyList = List()
       val res = size(emptyList)
-      it("Should return size§ of 0") {
+      it("Should return size of 0") {
         assert(res == 0)
       }
     }
@@ -227,6 +227,120 @@ class ListSpec extends FunSpec {
         intercept[RuntimeException] {
           init(emptyList)
         }
+      }
+    }
+  }
+
+  describe("Fold right") {
+    describe("When we apply a sum function to a list of integers with 0 for default") {
+      val l = List(1, 2, 3, 4)
+      /*
+      2nd group of parameter can be written as:
+       (x, y) => x + y
+       OR even
+       (x: Int, y: Int) => x + y
+       The we've done it here, type is inferred from the first group of parameters. And when each
+       parameter is used once in the expression we can replace it with underscores.
+       */
+      val res = foldRight(l, 0)(_ + _)
+      it("Should return sum of all elements of the list") {
+        assert(res == 10)
+      }
+      it("Should also return the same result when calling sum2 which is same as above test") {
+        assert(sum2(l) == 10)
+      }
+    }
+
+    describe("When we apply a product function to a list of integers with 0 for default") {
+      val l = List(1.0, 2, 3, 4)
+      val res = foldRight(l, 1.0)(_ * _)
+      it("Should return product of all elements of the list") {
+        assert(res == 24)
+      }
+      it("Should return 0 if list of elements contain a 0") {
+        assert(foldRight(List(1.0, 2, 3, 4, 0), 0.0)(_ * _) == 0)
+      }
+      it("Should return product of all elements of the list even when calling product2") {
+        assert(product2(l) == 24)
+      }
+      it("Should return 0 if list of elements contain a 0 even when calling product2") {
+        assert(product2(List(1, 2, 3, 4, 0.0)) == 0)
+      }
+    }
+  }
+
+  describe("Length") {
+    describe("When requesting for length of a list") {
+      val l = List(1, 2, 3, 4)
+      it("Should return correct length (using foldRight) of the given list") {
+        assert(length(l) == 4)
+      }
+      it("Should not mutate the original list computing length (using foldRight)") {
+        assert(l == List(1, 2, 3, 4))
+      }
+      it("Should return correct length (using foldLeft) of the given list") {
+        assert(length2(l) == 4)
+      }
+      it("Should not mutate the original list computing length (using foldLeft)") {
+        assert(l == List(1, 2, 3, 4))
+      }
+    }
+
+    describe("When asking for length of an empty list") {
+      val emptyList = List()
+      it("Should return length (using foldRight) of 0") {
+        assert(length(emptyList) == 0)
+      }
+      it("Should return length (using foldLeft) of 0") {
+        assert(length2(emptyList) == 0)
+      }
+    }
+  }
+
+  describe("Fold left") {
+    describe("When we apply a sum function to a list of integers with 0 for default") {
+      val l = List(1, 2, 3, 4)
+      val res = foldLeft(l, 0)(_ + _)
+      it("Should return sum of all elements of the list") {
+        assert(res == 10)
+      }
+      it("Should also return the same result when calling sum3 which is same as above test") {
+        assert(sum3(l) == 10)
+      }
+    }
+
+    describe("When we apply a product function to a list of integers with 0 for default") {
+      val l = List(1.0, 2, 3, 4)
+      val res = foldLeft(l, 1.0)(_ * _)
+      it("Should return product of all elements of the list") {
+        assert(res == 24)
+      }
+      it("Should return 0 if list of elements contain a 0") {
+        assert(foldLeft(List(1.0, 2, 3, 4, 0), 0.0)(_ * _) == 0)
+      }
+      it("Should return product of all elements of the list even when calling product3") {
+        assert(product3(l) == 24)
+      }
+      it("Should return 0 if list of elements contain a 0 even when calling product3") {
+        assert(product3(List(1, 2, 3, 4, 0.0)) == 0)
+      }
+    }
+  }
+
+  describe("Reverse - using a fold") {
+    describe("When a list of integers is requested to be reversed") {
+      val l = List(1, 2, 3)
+      val res = reverse(l)
+      it("Should return correctly reversed list") {
+        assert(res == List(3, 2, 1))
+      }
+    }
+
+    describe("When an empty list is requested to be reversed") {
+      val l = List()
+      val res = reverse(l)
+      it("Should return the empty list") {
+        assert(res == List())
       }
     }
   }

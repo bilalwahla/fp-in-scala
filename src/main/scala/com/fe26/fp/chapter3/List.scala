@@ -90,23 +90,6 @@ object List {
     case Cons(h, t) => Cons(h, append(t, a2))
   }
 
-  // Utility functions
-
-  def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B = as match {
-    case Nil => z
-    case Cons(x, xs) => f(x, foldRight(xs, z)(f))
-  }
-
-  def sum2(ns: List[Int]): Int = foldRight(ns, 0)((x, y) => x + y)
-
-  def product2(ns: List[Double]): Double =
-    foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
-
-  def size[A](l: List[A]): Int = l match {
-    case Nil => 0
-    case Cons(_, t) => 1 + size(t)
-  }
-
   /**
     * Exercise 3.2: Removes the first element of the list.
     *
@@ -199,9 +182,61 @@ object List {
     case Cons(h, t) => Cons(h, init(t))
   }
 
-  def length[A](l: List[A]): Int = ???
+  def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B = as match {
+    case Nil => z
+    case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+  }
 
-  def foldLeft[A, B](l: List[A], z: B)(f: (B, A) => B): B = ???
+  def sum2(ns: List[Int]): Int = foldRight(ns, 0)((x, y) => x + y)
 
-  def map[A, B](l: List[A])(f: A => B): List[B] = ???
+  def product2(ns: List[Double]): Double =
+    foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
+
+  def size[A](l: List[A]): Int = l match {
+    case Nil => 0
+    case Cons(_, t) => 1 + size(t)
+  }
+
+  /**
+    * Exercise 3.9: Compute the length of the list using `foldRight`
+    * @param l list to compute the length of
+    * @tparam A type of elements in the list
+    * @return length
+    */
+  def length[A](l: List[A]): Int = foldRight(l, 0)((_, y) => y + 1)
+
+  /**
+    * Exercise 3.10: general list-recursion function using tail recursion.
+    *
+    * @param as list to traverse
+    * @param z default
+    * @param f function to apply
+    * @tparam A type of elements in the list
+    * @tparam B type of the default
+    * @return
+    */
+  @annotation.tailrec
+  def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = as match {
+    case Nil => z
+    case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
+  }
+
+  /* Exercise 3.11: Write sum, product, and a function to compute the length of a list using foldLeft.*/
+
+  def sum3(ns: List[Int]): Int = foldLeft(ns, 0)((y, x) => y + x)
+
+  def product3(ns: List[Double]): Double = foldLeft(ns, 1.0)(_ * _)
+
+  def length2[A](l: List[A]): Int = foldLeft(l, 0)((x, _) => x + 1)
+
+  /* End of Exercise 3.11. */
+
+  /**
+    * Exercise 3.12: Write a function that returns the reverse of a list. Use a fold.
+    *
+    * @param l list to reverse
+    * @tparam A type of elements in the list
+    * @return reversed list
+    */
+  def reverse[A](l: List[A]): List[A] = foldLeft(l, List[A]())((b, a) => Cons(a, b))
 }
