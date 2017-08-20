@@ -14,11 +14,6 @@
 
 package com.fe26.fp.chapter2
 
-/**
-  * Chapter 2.
-  *
-  * @author bilalwahla
-  */
 object MyModule {
   def factorial(n: Int): Int = {
     def go(n: Int, acc: Int): Int = if (n <= 0) acc else go(n - 1, acc * n)

@@ -20,12 +20,9 @@ import com.fe26.fp.chapter2.MyModule._
 /**
   * Test specification for MyModule. Representing BDD using FunSpec style.
   *
-  * NOTE: perhaps more tests could be written but this is just an attempt to understand and apply
-  * the concepts.
-  *
   * @author bilalwahla
   */
-class MyModuleSuite extends FunSpec {
+class MyModuleSpec extends FunSpec {
   describe("Factorial") {
     describe("When calculating factorial of 5") {
       it("Should be 120") {
