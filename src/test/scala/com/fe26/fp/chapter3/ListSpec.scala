@@ -49,7 +49,7 @@ class ListSpec extends FunSpec {
   describe("Product") {
     describe("When a list of doubles is multiplied") {
       it("Should return correct product of all elements in the list") {
-        assert(product(List(1.0, 2, 3, 4)) == 24)
+        assert(product(List(1.0, 2, 3, 4, 0.0)) == 24)
       }
     }
   }
