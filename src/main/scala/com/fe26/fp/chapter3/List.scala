@@ -62,7 +62,8 @@ object List {
     */
   def sum(ints: List[Int]): Int = ints match {
     case Nil => 0 // The sum of the empty list is 0.
-    case Cons(x, xs) => x + sum(xs) // The sum of a list starting with `x` is `x` plus the sum of the rest of the list
+    // The sum of a list starting with `x` is `x` plus the sum of the rest of the list
+    case Cons(x, xs) => x + sum(xs)
   }
 
   /**
@@ -304,4 +305,21 @@ object List {
     */
   def filter[A](l: List[A])(f: A => Boolean): List[A] =
     foldRight(l, Nil: List[A])((h, t) => if (f(h)) Cons(h, t) else t)
+
+  /**
+    * Exercise 3.20: `flatMap` that works like `map` except that the function `f` will return a list
+    * instead of a single result, and that list should be inserted into the final resulting list.
+    *
+    * @param l list to flat map
+    * @param f function to flat map using
+    * @tparam A type of elements in the input list
+    * @tparam B type of elements in the returned list
+    * @return final list
+    */
+  def flatMap[A,B](l: List[A])(f: A => List[B]): List[B] = concatenate(map(l)(f))
+
+  /*
+  Exercise 3.21: filter using `flatMap`.
+   */
+  def filter2[A](l: List[A])(f: A => Boolean): List[A] = flatMap(l)(x => if (f(x)) List(x) else Nil)
 }

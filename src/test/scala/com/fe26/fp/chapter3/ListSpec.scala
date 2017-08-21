@@ -430,14 +430,37 @@ class ListSpec extends FunSpec {
   }
 
   describe("Filter") {
+    val l = List(1, 2, 3, 4, 5, 6, 7)
     describe("When it is requested to remove all even numbers from an integer list") {
-      val l = List(1, 2, 3, 4, 5, 6, 7)
       val res = filter(l)(_ % 2 != 0)
       it("Should return an integer list excluding all even numbers") {
         assert(res == List(1, 3, 5, 7))
       }
       it("Should not mutate original list") {
         assert(l == List(1, 2, 3, 4, 5, 6, 7))
+      }
+    }
+
+    describe("When it is requested to remove all even numbers from an integer list (using flatMap)") {
+      val res = filter2(l)(_ % 2 != 0)
+      it("Should return an integer list excluding all even numbers (using flatMap)") {
+        assert(res == List(1, 3, 5, 7))
+      }
+      it("Should not mutate original list (using flatMap)") {
+        assert(l == List(1, 2, 3, 4, 5, 6, 7))
+      }
+    }
+  }
+
+  describe("Flat map") {
+    describe("When a list is requested to be doubled up i.e. each element in the list should appear twice") {
+      val l = List(1, 2, 3)
+      val res = flatMap(l)(i => List(i, i))
+      it("Should return the doubled up list") {
+        assert(res == List(1, 1, 2, 2, 3, 3))
+      }
+      it("Should not mutate the original list") {
+        assert(l == List(1, 2, 3))
       }
     }
   }
