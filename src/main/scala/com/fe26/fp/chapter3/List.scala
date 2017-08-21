@@ -280,7 +280,7 @@ object List {
     * @param l list of doubles to be transformed
     * @return transformed list of doubles
     */
-  def convertToString(l: List[Double]): List[String] =
+  def convertToStr(l: List[Double]): List[String] =
     foldRight(l, Nil: List[String])((h, t) => Cons(h.toString, t))
 
   /**
@@ -322,4 +322,56 @@ object List {
   Exercise 3.21: filter using `flatMap`.
    */
   def filter2[A](l: List[A])(f: A => Boolean): List[A] = flatMap(l)(x => if (f(x)) List(x) else Nil)
+
+  /**
+    * Exercise 3.22: accepts two lists and constructs a new list by adding corresponding elements.
+    *
+    * @param l first list
+    * @param r second list
+    * @return resulting list with corresponding elements added
+    */
+  def addPairs(l: List[Int], r: List[Int]): List[Int] = (l, r) match {
+    case (Nil, _) => Nil
+    case (_, Nil) => Nil
+    case (Cons(lh, lt), Cons(rh, rt)) => Cons(lh + rh, addPairs(lt, rt))
+  }
+
+  /**
+    * Exercise 3.23: same as `addPairs` but is not integers or addition.
+    *
+    * @param l first list
+    * @param r second list
+    * @param f function to perform on corresponding elements
+    * @tparam A type of elements in first list
+    * @tparam B type of elements in the second list
+    * @tparam C type of elements in the returned list
+    * @return resulting list with given function applied to corresponding elements of the lists
+    */
+  def zipWith[A, B, C](l: List[A], r: List[B])(f: (A, B) => C): List[C] = (l, r) match {
+    case (Nil, _) => Nil
+    case (_, Nil) => Nil
+    case (Cons(lh, lt), Cons(rh, rt)) => Cons(f(lh, rh), zipWith(lt, rt)(f))
+  }
+
+  @annotation.tailrec
+  def startsWith[A](l: List[A], prefix: List[A]): Boolean = (l, prefix) match {
+    case (_, Nil) => true
+    case (Cons(h, t), Cons(h2, t2)) if h == h2 => startsWith(t, t2)
+    case _ => false
+  }
+
+  /**
+    * Exercise 3.24: checks whether a List contains another List as a subsequence.
+    *
+    * @param sup superset list
+    * @param sub subset list
+    * @tparam A type of elements in the lists
+    * @return true or false
+    */
+  @annotation.tailrec
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = sup match {
+    case Nil => sub == Nil
+    case _ if startsWith(sup, sub) => true
+    case Cons(_, t) => hasSubsequence(t, sub)
+  }
 }

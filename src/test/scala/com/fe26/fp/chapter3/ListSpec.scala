@@ -395,7 +395,7 @@ class ListSpec extends FunSpec {
 
     describe("When a double list is requested to be transformed by turning each value into a String") {
       val l = List(1.0, 2.0, 3.0)
-      val res = convertToString(l)
+      val res = convertToStr(l)
       it("Should return a transformed list of strings representing double values in the original list") {
         assert(res == List("1.0", "2.0", "3.0"))
       }
@@ -461,6 +461,69 @@ class ListSpec extends FunSpec {
       }
       it("Should not mutate the original list") {
         assert(l == List(1, 2, 3))
+      }
+    }
+  }
+
+  describe("Add pairs & Zip") {
+    val l = List(1, 2, 3)
+    val expected = List(7, 9, 11)
+    describe("When two lists of integers of same length are passed in") {
+      val r = List(6, 7, 8)
+      val res = addPairs(l, r)
+      it("Should construct a new list by adding corresponding elements returning the resulting list") {
+        assert(res == expected)
+      }
+      it("Should result the same using Zip in case of lists of same sizes") {
+        assert(zipWith(l, r)(_ + _) == expected)
+      }
+    }
+
+    describe("When two lists of varying lengths are passed in and not each element has a corresponding element") {
+      val r2 = List(6, 7, 8, 9)
+      it("Should return a newly constructed list with only corresponding elements added") {
+        assert(addPairs(l, r2) == expected)
+      }
+      it("Should result the same using Zip in case of lists of different sizes") {
+        assert(zipWith(l, r2)(_ + _) == expected)
+      }
+    }
+  }
+
+  describe("Has subsequence") {
+    describe("When a list of integers and another with subset of integers is passed in") {
+      it("Should acknowledge having subsequence") {
+        assert(hasSubsequence(List(1,2,3,4), List(1,2)))
+      }
+    }
+
+    describe("When a list of integers with another not subset of those integers is passed in") {
+      it("Should confirm has no subsequence") {
+        assert(!hasSubsequence(List(1,2,3,4), List(4,5)))
+      }
+    }
+
+    describe("When two empty lists are passed in") {
+      it("Should consider having subsequence") {
+        assert(hasSubsequence(List(), List()))
+      }
+    }
+
+    describe("When an empty superset list and a subset list of couple of integers is passed in") {
+      it("Should return false") {
+        assert(!hasSubsequence(List(), List(1, 2)))
+      }
+    }
+
+    describe("When two exactly same lists if integers are passed in") {
+      it("Should be considered having subsequence") {
+        assert(hasSubsequence(List(1, 2), List(1, 2)))
+      }
+    }
+
+    describe("When a superset list with a few elements and an empty subset is passed in") {
+      it("Should also be considered having subsequence") {
+        assert(hasSubsequence(List(1, 2), List()))
       }
     }
   }
