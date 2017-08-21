@@ -2,4 +2,4 @@
 
 This is a project about learning Scala as I study through the the book by Paul Chiusano and Runar Bjarnason. 
 
-I have used BDD approach in an attempt to understand explained concepts as well as I could. BDD gives me a great playground to experiment.
+I have used BDD approach in an attempt to understand explained concepts as well as I could. BDD gives a great playground to experiment.
