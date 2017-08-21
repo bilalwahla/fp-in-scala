@@ -344,4 +344,101 @@ class ListSpec extends FunSpec {
       }
     }
   }
+
+  describe("Append - using fold") {
+    describe("When a list is appended to another") {
+      val a1 = List(1, 2, 3, 4)
+      val a2 = List(5, 6, 7, 8)
+      val res = append2(a1, a2)
+      it("Should return a list that has been appended with the other") {
+        assert(res == List(1, 2, 3, 4, 5, 6, 7, 8))
+      }
+      it("Should not mutate the original lists") {
+        assert(a1 == List(1, 2, 3, 4))
+        assert(a2 == List(5, 6, 7, 8))
+      }
+    }
+  }
+
+  describe("Concatenate") {
+    describe("When a list of lists is concatenated in to a single list") {
+      val l = List(List(1, 2, 3), List(4, 5, 6), List(7, 8, 9))
+      val res = concatenate(l)
+      it("Should return a single list with elements in all lists in the list") {
+        assert(res == List(1, 2, 3, 4, 5, 6, 7, 8, 9))
+      }
+      it("Should not mutate the original list") {
+        assert(l == List(List(1, 2, 3), List(4, 5, 6), List(7, 8, 9)))
+      }
+    }
+
+    describe("When a list of empty lists is requested to be concatenated") {
+      val l = List(List(), List())
+      val res = concatenate(l)
+      it("Should return an empty list") {
+        assert(res == Nil)
+      }
+    }
+  }
+
+  describe("Transform") {
+    describe("When an integer list is requested to be transformed by adding 1 to each of its elements") {
+      val l = List(1, 2, 3)
+      val res = addOne(l)
+      it("Should return a transformed integer list with 1 added to each of its elements") {
+        assert(res == List(2, 3, 4))
+      }
+      it("Should not mutate existing integer list") {
+        assert(l == List(1, 2, 3))
+      }
+    }
+
+    describe("When a double list is requested to be transformed by turning each value into a String") {
+      val l = List(1.0, 2.0, 3.0)
+      val res = convertToString(l)
+      it("Should return a transformed list of strings representing double values in the original list") {
+        assert(res == List("1.0", "2.0", "3.0"))
+      }
+      it("Should not mutate existing list of doubles") {
+        assert(l == List(1.0, 2.0, 3.0))
+      }
+    }
+  }
+
+  describe("Map - transformations generalised") {
+    describe("When an integer list is requested to be transformed by adding 1 to each of its elements") {
+      val l = List(1, 2, 3)
+      val res = map(l)(_ + 1)
+      it("Should return a transformed integer list with 1 added to each of its elements") {
+        assert(res == List(2, 3, 4))
+      }
+      it("Should not mutate existing integer list") {
+        assert(l == List(1, 2, 3))
+      }
+    }
+
+    describe("When a double list is requested to be transformed by turning each value into a String") {
+      val l = List(1.0, 2.0, 3.0)
+      val res = map(l)(_.toString)
+      it("Should return a transformed list of strings representing double values in the original list") {
+        assert(res == List("1.0", "2.0", "3.0"))
+      }
+      it("Should not mutate existing list of doubles") {
+        assert(l == List(1.0, 2.0, 3.0))
+      }
+    }
+  }
+
+  describe("Filter") {
+    describe("When it is requested to remove all even numbers from an integer list") {
+      val l = List(1, 2, 3, 4, 5, 6, 7)
+      val res = filter(l)(_ % 2 != 0)
+      it("Should return an integer list excluding all even numbers") {
+        assert(res == List(1, 3, 5, 7))
+      }
+      it("Should not mutate original list") {
+        assert(l == List(1, 2, 3, 4, 5, 6, 7))
+      }
+    }
+  }
 }

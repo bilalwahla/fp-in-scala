@@ -208,6 +208,9 @@ object List {
   /**
     * Exercise 3.10: general list-recursion function using tail recursion.
     *
+    * The purpose of function `f` is to take a value of type `B`, use a list item to modify that
+    * value and return it.
+    *
     * @param as list to traverse
     * @param z default
     * @param f function to apply
@@ -221,7 +224,9 @@ object List {
     case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
   }
 
-  /* Exercise 3.11: Write sum, product, and a function to compute the length of a list using foldLeft.*/
+  /* Exercise 3.11: Write sum, product, and a function to compute the length of a list using
+  `foldLeft`.
+   */
 
   def sum3(ns: List[Int]): Int = foldLeft(ns, 0)((y, x) => y + x)
 
@@ -238,5 +243,65 @@ object List {
     * @tparam A type of elements in the list
     * @return reversed list
     */
-  def reverse[A](l: List[A]): List[A] = foldLeft(l, List[A]())((b, a) => Cons(a, b))
+  def reverse[A](l: List[A]): List[A] = foldLeft(l, Nil: List[A])((b, a) => Cons(a, b))
+
+  /**
+    * Exercise 3.14: Append in terms of fold. Using `foldRight` as we want to traverse through `l`
+    * starting at its end and adding it to the front of the accumulated/resulting list.
+    *
+    * @param l list to append to
+    * @param r list to be be appended
+    * @tparam A type of elements of the list
+    * @return list representing the two joined
+    */
+  def append2[A](l: List[A], r: List[A]): List[A] = foldRight(l, r)(Cons(_, _))
+
+  /**
+    * Exercise 3.15: concatenates a list of lists into a single list.
+    *
+    * @param l list to concatenate
+    * @tparam A type of elements in the list
+    * @return concatenated list
+    */
+  def concatenate[A](l: List[List[A]]): List[A] = foldRight(l, Nil: List[A])(append)
+
+  /**
+    * Exercise 3.16: transforms a list of integers by adding 1 to each element.
+    *
+    * @param l list of integers to transform
+    * @return transformed integer list
+    */
+  def addOne(l: List[Int]): List[Int] = foldRight(l, Nil: List[Int])((h, t) => Cons(h + 1, t))
+
+  /**
+    * Exercise 3.16: turns each value in a list of doubles into a String.
+    *
+    * @param l list of doubles to be transformed
+    * @return transformed list of doubles
+    */
+  def convertToString(l: List[Double]): List[String] =
+    foldRight(l, Nil: List[String])((h, t) => Cons(h.toString, t))
+
+  /**
+    * Exercise 3.18: generalizes modifying each element in a list while maintaining the structure of
+    * the list.
+    *
+    * @param l list to modify
+    * @param f function used for modification
+    * @tparam A type of elements in the list
+    * @tparam B type of elements in the returned list
+    * @return transformed/modified list
+    */
+  def map[A,B](l: List[A])(f: A => B): List[B] = foldRight(l, Nil: List[B])((h, t) => Cons(f(h), t))
+
+  /**
+    * Exercise 3.19: removes elements from a list unless they satisfy a given predicate.
+    *
+    * @param l list to remove elements from
+    * @param f predicate for elements not to remove
+    * @tparam A type of elements in the list
+    * @return list with elements that match the predicate
+    */
+  def filter[A](l: List[A])(f: A => Boolean): List[A] =
+    foldRight(l, Nil: List[A])((h, t) => if (f(h)) Cons(h, t) else t)
 }
