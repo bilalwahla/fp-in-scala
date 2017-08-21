@@ -219,7 +219,6 @@ object List {
     * @tparam B type of the default
     * @return
     */
-  @annotation.tailrec
   def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B = as match {
     case Nil => z
     case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
@@ -353,7 +352,6 @@ object List {
     case (Cons(lh, lt), Cons(rh, rt)) => Cons(f(lh, rh), zipWith(lt, rt)(f))
   }
 
-  @annotation.tailrec
   def startsWith[A](l: List[A], prefix: List[A]): Boolean = (l, prefix) match {
     case (_, Nil) => true
     case (Cons(h, t), Cons(h2, t2)) if h == h2 => startsWith(t, t2)
@@ -368,7 +366,6 @@ object List {
     * @tparam A type of elements in the lists
     * @return true or false
     */
-  @annotation.tailrec
   def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = sup match {
     case Nil => sub == Nil
     case _ if startsWith(sup, sub) => true
