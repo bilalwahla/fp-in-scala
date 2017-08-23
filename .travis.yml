@@ -1,14 +1,14 @@
 language:
   scala
 
+scala:
+  - 2.12.3
+
 jdk:
 - oraclejdk8
 
 notifications:
-  email:
-  - bilalwahla@gmail.com
-  on_success: always
-  on_failure: always
+  email: false
 
 branches:
   only:
