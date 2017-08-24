@@ -18,7 +18,7 @@ import org.scalatest.FunSpec
 import com.fe26.fp.chapter2.MyModule._
 
 /**
-  * Test specification for MyModule. Representing BDD using FunSpec style.
+  * Test specification for MyModule. Representing BDD using `FunSpec` style.
   *
   * @author bilalwahla
   */
