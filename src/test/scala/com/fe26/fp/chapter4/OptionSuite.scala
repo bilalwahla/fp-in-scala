@@ -126,28 +126,56 @@ class OptionSuite extends FunSuite {
   test("Should be able to utilise a function by lifting it to operate in the context of option " +
     "after the fact (flat map)") {
     new Options {
-      assert(map2_2(s1, s2)((a, b) => f(a, b)) == Some(7))
+      assert(map3(s1, s2)((a, b) => f(a, b)) == Some(7))
     }
   }
 
   test("Should be able to utilise a function by lifting it to operate in the context of option " +
     "after the fact (flat map), passing none as the first parameter and getting none") {
     new Options {
-      assert(map2_2(None, s2)((a, b) => f(a, b)) == None)
+      assert(map3(None, s2)((a, b) => f(a, b)) == None)
     }
   }
 
   test("Should be able to utilise a function by lifting it to operate in the context of option " +
     "after the fact (flat map), passing none as the second parameter and getting none") {
     new Options {
-      assert(map2_2(s1, None)((a, b) => f(a, b)) == None)
+      assert(map3(s1, None)((a, b) => f(a, b)) == None)
     }
   }
 
   test("Should be able to utilise a function by lifting it to operate in the context of option " +
     "after the fact (flat map), passing none parameters") {
     new Options {
-      assert(map2_2(None, None)((a, b) => f(a, b)) == None)
+      assert(map3(None, None)((a, b) => f(a, b)) == None)
+    }
+  }
+
+  test("Should be able to utilise a function by lifting it to operate in the context of option " +
+    "after the fact (for-comprehension)") {
+    new Options {
+      assert(map4(s1, s2)((a, b) => f(a, b)) == Some(7))
+    }
+  }
+
+  test("Should be able to utilise a function by lifting it to operate in the context of option " +
+    "after the fact (for-comprehension), passing none as the first parameter and getting none") {
+    new Options {
+      assert(map4(None, s2)((a, b) => f(a, b)) == None)
+    }
+  }
+
+  test("Should be able to utilise a function by lifting it to operate in the context of option " +
+    "after the fact (for-comprehension), passing none as the second parameter and getting none") {
+    new Options {
+      assert(map4(s1, None)((a, b) => f(a, b)) == None)
+    }
+  }
+
+  test("Should be able to utilise a function by lifting it to operate in the context of option " +
+    "after the fact (for-comprehension), passing none parameters") {
+    new Options {
+      assert(map4(None, None)((a, b) => f(a, b)) == None)
     }
   }
 

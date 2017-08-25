@@ -71,8 +71,14 @@ object Option {
   }
 
   // Lots of trivial cases going on above. Perhaps more readable but not elegant. Lets try again.
-  def map2_2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
+  def map3[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
     a flatMap (aa => b map (bb => f(aa, bb)))
+
+  // Could also use for-comprehension that is expanded into flatMap and map calls under the hood.
+  def map4[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = for {
+    aa <- a
+    bb <- b
+  } yield f(aa, bb)
 
   /**
     * Exercise 4.4: combines a list of `Option`s into one `Option` containing a list of all the
@@ -86,12 +92,12 @@ object Option {
     */
   def sequence[A](a: List[Option[A]]): Option[List[A]] = a match {
     case Nil => Some(Nil)
-    case x :: xs => x flatMap(xx => sequence(xs) map(xx :: _))
+    case x :: xs => x flatMap (xx => sequence(xs) map (xx :: _))
   }
 
   // Again lets try without pattern matching
   def sequence_1[A](a: List[Option[A]]): Option[List[A]] =
-    a.foldRight[Option[List[A]]](Some(Nil))((x, y) => map2_2(x, y)(_ :: _))
+    a.foldRight[Option[List[A]]](Some(Nil))((x, y) => map3(x, y)(_ :: _))
 
   /**
     * Exercise 4.5: combines a list of `Option`s into one `Option` containing a list of all the
@@ -105,12 +111,12 @@ object Option {
     */
   def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = a match {
     case Nil => Some(Nil)
-    case x :: xs => map2_2(f(x), traverse(xs)(f))(_ :: _)
+    case x :: xs => map3(f(x), traverse(xs)(f))(_ :: _)
   }
 
-  // Fold
+  // Folded traverse
   def traverse_1[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] =
-    a.foldRight[Option[List[B]]](Some(Nil))((x, y) => map2_2(f(x), y)(_ :: _))
+    a.foldRight[Option[List[B]]](Some(Nil))((x, y) => map3(f(x), y)(_ :: _))
 
   // Sequence in terms of traverse
   def sequence_2[A](a: List[Option[A]]): Option[List[A]] = traverse(a)(aa => aa)
