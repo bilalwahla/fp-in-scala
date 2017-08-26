@@ -215,16 +215,16 @@ class OptionSuite extends FunSuite {
     }
   }
 
-  test("Should be able to combine a list of some into a some with the list of values (traverse) " +
+  test("Should be able to combine a list of integers into a some with the list as the value (traverse) " +
     "with a function applied to each value") {
     assert(traverse(List(1, 2, 3))(a => Some(a + 1)) == Some(List(2, 3, 4)))
   }
 
-  test("Should be able to combine an empty list of into a some with an empty list (traverse)") {
+  test("Should be able to combine an empty list into a some with an empty list (traverse)") {
     assert(traverse(List())(Some(_)) == Some(List()))
   }
 
-  test("Should be able to combine a list of some into a some with the list of values (folded traverse) " +
+  test("Should be able to combine a list of integers into a some with the list as the value (folded traverse) " +
     "with a function applied to each value") {
     assert(traverse_1(List(1, 2, 3))(a => Some(a + 1)) == Some(List(2, 3, 4)))
   }
