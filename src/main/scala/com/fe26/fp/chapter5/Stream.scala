@@ -8,7 +8,6 @@ sealed trait Stream[+A] {
   }
 
   /* Exercise 5.1 */
-
   def toList: List[A] = {
     def loop(s: Stream[A], acc: List[A]): List[A] = s match {
       case Empty => acc
@@ -32,12 +31,42 @@ sealed trait Stream[+A] {
   }
 
   /* Exercise 5.3 */
-
   def takeWhile(f: A => Boolean): Stream[A] = this match {
     case Cons(h, t) if f(h()) => cons(h(), t().takeWhile(f))
-    case Cons(_, t) => t().takeWhile(f) // ignore element not matching predicate
     case _ => empty
   }
+
+  def exists(p: A => Boolean): Boolean = this match {
+    case Cons(h, t) => p(h()) || t().exists(p)
+    case _ => false
+  }
+
+  def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
+    case Empty => z
+    case Cons(h, t) => f(h(), t().foldRight(z)(f))
+  }
+
+  def exists2(p: A => Boolean): Boolean = foldRight(false)((a, b) => p(a) || b)
+
+  /* Exercise 5.4 */
+  def forAll(p: A => Boolean): Boolean = foldRight(true)((a, b) => p(a) && b)
+
+  /* Exercise 5.5 */
+  def takeWhile2(f: A => Boolean): Stream[A] =
+    foldRight(empty[A])((a, b) => if (f(a)) cons(a, b) else empty)
+
+  /* Exercise 5.6 */
+  def headOption2: Option[A] = foldRight(None: Option[A])((a, _) => Some(a))
+
+  /* Exercise 5.7 */
+
+  def map[B](f: A => B): Stream[B] = foldRight(empty[B])((a, b) => cons(f(a), b))
+
+  def filter(f: A => Boolean): Stream[A] = foldRight(empty[A])((a, b) => if (f(a)) cons(a, b) else b)
+
+  def append[B >: A](s: => Stream[B]): Stream[B] = foldRight(s)((a, b) => cons(a, b))
+
+  def flatMap[B](f: A => Stream[B]): Stream[B] = foldRight(empty[B])((a, b) => f(a).append(b))
 }
 
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
