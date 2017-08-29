@@ -230,4 +230,17 @@ class StreamSpec extends FreeSpec {
       }
     }
   }
+
+  "Find" - {
+    "When we try to find an element in an integer stream" - {
+      "Should return the found element" in {
+        assert(s1.find(_ % 5 == 0).contains(5))
+      }
+    }
+    "When we try to find an element in an empty stream" - {
+      "Should return an none" in {
+        assert(emptyStream.find(_ % 5 == 0).isEmpty)
+      }
+    }
+  }
 }
