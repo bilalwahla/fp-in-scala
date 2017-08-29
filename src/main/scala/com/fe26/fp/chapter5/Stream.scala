@@ -1,10 +1,13 @@
 package com.fe26.fp.chapter5
 
+import Stream._
 sealed trait Stream[+A] {
   def headOption: Option[A] = this match {
     case Empty => None
     case Cons(h, _) => Some(h())
   }
+
+  /* Exercise 5.1 */
 
   def toList: List[A] = {
     def loop(s: Stream[A], acc: List[A]): List[A] = s match {
@@ -13,6 +16,27 @@ sealed trait Stream[+A] {
     }
 
     loop(this, Nil).reverse
+  }
+
+  /* Exercise 5.2 */
+
+  def take(n: Int): Stream[A] = this match {
+    case Cons(h, t) if n > 1 => cons(h(), t().take(n - 1))
+    case Cons(h, _) if n == 1 => cons(h(), empty)
+    case _ => empty
+  }
+
+  def drop(n: Int): Stream[A] = this match {
+    case Cons(_, t) if n > 0 => t().drop(n - 1)
+    case _ => this
+  }
+
+  /* Exercise 5.3 */
+
+  def takeWhile(f: A => Boolean): Stream[A] = this match {
+    case Cons(h, t) if f(h()) => cons(h(), t().takeWhile(f))
+    case Cons(_, t) => t().takeWhile(f) // ignore element not matching predicate
+    case _ => empty
   }
 }
 
