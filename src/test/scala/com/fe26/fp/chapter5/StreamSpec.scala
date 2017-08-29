@@ -27,9 +27,11 @@ class StreamSpec extends FreeSpec {
   val s1 = Stream(1, 2, 3, 4, 5, 6, 7, 8, 9)
   val s2 = Stream(10, 11)
   val l1 = List(1, 2, 3, 4, 5, 6, 7, 8, 9)
-  val l2 = List(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9)
-  val l3 = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
-  val l4 = List(1, 3, 5, 7, 9)
+  val l2 = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
+  val l3 = List(1, 3, 5, 7, 9)
+  val l4 = List(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9)
+  val l5 = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
+  val l6 = List(10, 11)
 
   "Head option" - {
     "When retrieving head from an empty stream" - {
@@ -180,7 +182,7 @@ class StreamSpec extends FreeSpec {
   "Map" - {
     "When an integer stream is requested to be transformed by adding 1 to each of its elements" - {
       "Should return a transformed integer stream with 1 added to each of its elements" in {
-        assert(s1.map(_ + 1).toList == List(2, 3, 4, 5, 6, 7, 8, 9, 10))
+        assert(s1.map(_ + 1).toList == l2)
       }
     }
     "When an empty stream is requested to be transformed by adding 1 to each of its elements" - {
@@ -193,7 +195,7 @@ class StreamSpec extends FreeSpec {
   "Filter" - {
     "When it is requested to remove all even numbers from an integer stream" - {
       "Should return an integer stream excluding all even numbers" in {
-        assert(s1.filter(_ % 2 != 0).toList == l4)
+        assert(s1.filter(_ % 2 != 0).toList == l3)
       }
     }
     "When it is requested to remove all even numbers from an empty stream" - {
@@ -206,7 +208,7 @@ class StreamSpec extends FreeSpec {
   "Flat map" - {
     "When a stream is requested to be doubled up i.e. each element in the stream should appear twice" - {
       "Should return the doubled up stream" in {
-        assert(s1.flatMap(a => cons(a, cons(a, empty))).toList == l2)
+        assert(s1.flatMap(a => cons(a, cons(a, empty))).toList == l4)
       }
     }
     "When an empty stream is requested to be doubled up" - {
@@ -219,12 +221,12 @@ class StreamSpec extends FreeSpec {
   "Append" - {
     "When a stream is appended to another" - {
       "Should return a stream that has been appended with the other" in {
-        assert(s1.append(s2).toList == l3)
+        assert(s1.append(s2).toList == l5)
       }
     }
     "When an empty stream is appended to another" - {
       "Should return the stream being appended" in {
-        assert(emptyStream.append(s2).toList == List(10, 11))
+        assert(emptyStream.append(s2).toList == l6)
       }
     }
   }
