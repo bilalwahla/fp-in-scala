@@ -295,9 +295,11 @@ class StreamSpec extends FreeSpec {
   "Unfold" - {
     "When creating an infinite stream of integers starting from n and then n + 1 and so on" - {
       "Should return an infinite stream starting from n and then n + 1 and so on" in {
-        assert(unfold(0)(_ => None) == emptyStream) // testing function result of none
+        assert(unfold(0)(_ => None) == emptyStream)
         assert(unfold(5)(n => Some((n, n + 1))).take(3).toList == List(5, 6, 7))
+        assert(unfold2(0)(_ => None) == emptyStream)
         assert(unfold2(5)(n => Some((n, n + 1))).take(3).toList == List(5, 6, 7))
+        assert(unfold3(0)(_ => None) == emptyStream)
         assert(unfold3(5)(n => Some((n, n + 1))).take(3).toList == List(5, 6, 7))
       }
     }
