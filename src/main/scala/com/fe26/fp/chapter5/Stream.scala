@@ -82,12 +82,41 @@ object Stream {
     Cons(() => head, () => tail)
   }
 
-  /*
-  `Empty` as a `Stream[A]` for type inference. Scala uses subtyping to represent data constructors,
-  but we almost always want to infer `Stream` as the type, not `Cons` or `Empty`. Making smart
-  constructors that return the base type is a common trick.
-   */
+  /**
+    * `Empty` as a `Stream[A]` for type inference. Scala uses subtyping to represent data
+    * constructors, but we almost always want to infer `Stream` as the type, not `Cons` or `Empty`.
+    * Making smart constructors that return the base type is a common trick.
+    *
+    * @tparam A even though an empty stream defining type of type inference
+    * @return
+    */
   def empty[A]: Stream[A] = Empty
 
   def apply[A](as: A*): Stream[A] = if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
+
+  /* Exercise 5.8 */
+  def constant[A](a: A): Stream[A] = cons(a, constant(a))
+
+  /* This is more efficient than `cons(a, constant(a))` since it's just one object referencing itself.*/
+  def constant2[A](a: A): Stream[A] = {
+    lazy val tail: Stream[A] = Cons(() => a, () => tail)
+    tail
+  }
+
+  /**
+    * Exercise 5.9: In Scala, the Int type is a 32-bit signed integer, so this stream will switch
+    * from positive to negative values at some point, and will repeat itself after about four
+    * billion elements.
+    *
+    * @param n starting number
+    * @return stream of integers
+    */
+  def from(n: Int): Stream[Int] = cons(n, from(n + 1))
+
+  /* Exercise 5.10 */
+  def fibs: Stream[Int] = {
+    def loop(prev: Int, last: Int): Stream[Int] = cons(prev, loop(last, prev + last))
+
+    loop(0, 1)
+  }
 }
