@@ -245,12 +245,14 @@ class StreamSpec extends FreeSpec {
   }
 
   "Infinite streams" - {
-    def ones: Stream[Int] = cons(1, ones)
     "When inspected" - {
       "Should only inspect the portion of the stream needed to generate the demanded output" in {
         assert(ones.take(5).toList == List(1, 1, 1, 1, 1))
         assert(ones.map(_ + 1).exists(_ % 2 == 0))
         assert(!ones.forAll(_ != 1))
+        assert(ones2.take(5).toList == List(1, 1, 1, 1, 1))
+        assert(ones2.map(_ + 1).exists(_ % 2 == 0))
+        assert(!ones2.forAll(_ != 1))
         /*
         Below will never encounter an element that allows it to terminate with a definite answer
         (this will manifest as a stack overflow rather than an infinite loop).
@@ -266,22 +268,36 @@ class StreamSpec extends FreeSpec {
       "Should return an infinite stream of 3s" in {
         assert(constant(3).take(5).toList == List(3, 3, 3, 3, 3))
         assert(constant2(3).take(5).toList == List(3, 3, 3, 3, 3))
+        assert(constant3(3).take(5).toList == List(3, 3, 3, 3, 3))
       }
     }
     "When a constant is created of an infinite stream of Xs" - {
       "Should return an infinite stream of Xs" in {
         assert(constant("X").take(5).toList == List("X", "X", "X", "X", "X"))
         assert(constant2("X").take(5).toList == List("X", "X", "X", "X", "X"))
+        assert(constant3("X").take(5).toList == List("X", "X", "X", "X", "X"))
       }
     }
     "When creating an infinite stream of integers starting from n and then n + 1 and so on" - {
       "Should return an infinite stream starting from n and then n + 1 and so on" in {
         assert(from(6).take(5).toList == List(6, 7, 8, 9, 10))
+        assert(from2(6).take(5).toList == List(6, 7, 8, 9, 10))
       }
     }
     "When creating an infinite stream of fibonacci numbers" - {
       "Should return an infinite stream of fibonacci numbers" in {
         assert(fibs.take(5).toList == List(0, 1, 1, 2, 3))
+        assert(fibs2.take(5).toList == List(0, 1, 1, 2, 3))
+      }
+    }
+  }
+
+  "Unfold" - {
+    "When creating an infinite stream of integers starting from n and then n + 1 and so on" - {
+      "Should return an infinite stream starting from n and then n + 1 and so on" in {
+        assert(unfold(5)(n => Some((n, n + 1))).take(3).toList == List(5, 6, 7))
+        assert(unfold2(5)(n => Some((n, n + 1))).take(3).toList == List(5, 6, 7))
+        assert(unfold3(5)(n => Some((n, n + 1))).take(3).toList == List(5, 6, 7))
       }
     }
   }

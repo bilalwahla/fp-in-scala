@@ -95,6 +95,9 @@ object Stream {
   def apply[A](as: A*): Stream[A] = if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 
   /* Exercise 5.8 */
+
+  def ones: Stream[Int] = cons(1, ones)
+
   def constant[A](a: A): Stream[A] = cons(a, constant(a))
 
   /* This is more efficient than `cons(a, constant(a))` since it's just one object referencing itself.*/
@@ -119,4 +122,42 @@ object Stream {
 
     loop(0, 1)
   }
+
+  /**
+    * Exercise 5.11: It takes an initial state, and a function for producing both the next state and
+    * the next value in the generated stream
+    */
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+    case None => empty
+    case Some((a, s)) => cons(a, unfold(s)(f))
+  }
+
+  /*
+  The below two implementations use `fold` and `map` functions in the `Option` class to implement
+  `unfold`, thereby doing away with the need to manually pattern match as in the above solution.
+   */
+
+  def unfold2[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] =
+    f(z).map((p: (A, S)) => cons(p._1, unfold2(p._2)(f))).getOrElse(empty[A])
+
+  def unfold3[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] =
+    f(z).fold(empty[A])((p: (A, S)) => cons(p._1, unfold3(p._2)(f)))
+
+  /* Exercise 5.12 */
+
+  def ones2: Stream[Int] = unfold(1)(_ => Some((1, 1)))
+
+  def constant3[A](a: A): Stream[A] = unfold(a)(_ => Some((a, a)))
+
+  /*
+  Scala provides shorter syntax when the first action of a function literal is to match on an
+  expression. The function passed to `unfold` in `fibs2` is equivalent to
+  `p => p match { case (f0,f1) => ... }`, but we avoid having to choose a name for `p`, only to
+  pattern match on it.
+  */
+  def fibs2: Stream[Int] = unfold((0, 1)) {
+    case (prev, last) => Some((prev, (last, prev + last)))
+  }
+
+  def from2(n: Int): Stream[Int] = unfold(n)(n => Some((n, n + 1)))
 }
