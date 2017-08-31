@@ -62,13 +62,68 @@ sealed trait Stream[+A] {
 
   def map[B](f: A => B): Stream[B] = foldRight(empty[B])((a, b) => cons(f(a), b))
 
-  def filter(f: A => Boolean): Stream[A] = foldRight(empty[A])((a, b) => if (f(a)) cons(a, b) else b)
+  def filter(f: A => Boolean): Stream[A] =
+    foldRight(empty[A])((a, b) => if (f(a)) cons(a, b) else b)
 
   def append[B >: A](s: => Stream[B]): Stream[B] = foldRight(s)((a, b) => cons(a, b))
 
   def flatMap[B](f: A => Stream[B]): Stream[B] = foldRight(empty[B])((a, b) => f(a).append(b))
 
   def find(p: A => Boolean): Option[A] = filter(p).headOption
+
+  /* Exercise 5.13 */
+
+  def mapUnfold[B](f: A => B): Stream[B] = unfold(this) {
+    case Empty => None
+    case Cons(a, b) => Some((f(a()), b()))
+  }
+
+  // My `takeUnfold` solution
+  def takeUnfold(n: Int): Stream[A] = unfold(this) {
+    case Empty => None
+    case Cons(a, b) if n > 1 => Some((a(), b().takeUnfold(n - 1)))
+    case Cons(a, _) if n == 1 => Some((a(), empty))
+  }
+
+  // `takeUnfold` similar to Book's answer
+  def takeUnfold2(n: Int): Stream[A] = unfold((this, n)) {
+    case (Empty, _) => None
+    case (Cons(a, b), nth) if nth > 1 => Some((a(), (b(), nth - 1)))
+    case (Cons(a, _), 1) => Some((a(), (empty, 0)))
+  }
+
+  def takeWhileUnfold(f: A => Boolean): Stream[A] = unfold(this) {
+    // You could write b().takeWhileUnfold(f) or just b() to leave it to the unfold
+    case Cons(a, b) if f(a()) => Some((a(), b()))
+    case _ => None
+  }
+
+  def zipWithUnfold[B, C](s2: Stream[B])(f: (A, B) => C): Stream[C] = unfold((this, s2)) {
+    case (Cons(s1h, s1t), Cons(s2h, s2t)) => Some((f(s1h(), s2h()), (s1t(), s2t())))
+    // could combine the 3 cases below in to one e.g. case _ => None
+    case (Empty, Empty) => None
+    case (Cons(_, _), Empty) => None
+    case (Empty, Cons(_, _)) => None
+  }
+
+  def zipAllUnfold[B](s2: Stream[B]): Stream[(Option[A],Option[B])] = unfold(this, s2) {
+    case (Cons(s1h, s1t), Cons(s2h, s2t)) => Some(((Some(s1h()), Some(s2h())), (s1t(), s2t())))
+    case (Cons(s1h, s1t), Empty) => Some(((Some(s1h()), Option.empty[B]), (s1t(), empty[B])))
+    case (Empty, Cons(s2h, s2t)) => Some(((Option.empty[A], Some(s2h())), (empty[A], s2t())))
+    case (Empty, Empty) => None
+  }
+
+  // Answers from the book suggest generalising zip all to the following
+  def zipWithAll[B, C](s2: Stream[B])(f: (Option[A], Option[B]) => C): Stream[C] =
+    unfold((this, s2)) {
+      case (Empty, Empty) => None
+      case (Cons(s1h, s1t), Empty) => Some(f(Some(s1h()), Option.empty[B]) -> (s1t(), empty[B]))
+      case (Empty, Cons(s2h, s2t)) => Some(f(Option.empty[A], Some(s2h())) -> (empty[A] -> s2t()))
+      case (Cons(s1h, s1t), Cons(s2h, s2t)) => Some(f(Some(s1h()), Some(s2h())) -> (s1t() -> s2t()))
+    }
+
+  // And then zipAll could be simplified to
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] = zipWithAll(s2)((_,_))
 }
 
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
@@ -100,7 +155,9 @@ object Stream {
 
   def constant[A](a: A): Stream[A] = cons(a, constant(a))
 
-  /* This is more efficient than `cons(a, constant(a))` since it's just one object referencing itself.*/
+  /*
+  This is more efficient than `cons(a, constant(a))` since it's just one object referencing itself.
+   */
   def constant2[A](a: A): Stream[A] = {
     lazy val tail: Stream[A] = Cons(() => a, () => tail)
     tail

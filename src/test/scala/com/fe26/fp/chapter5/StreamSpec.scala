@@ -32,6 +32,7 @@ class StreamSpec extends FreeSpec {
   val l4 = List(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9)
   val l5 = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
   val l6 = List(10, 11)
+  val l7 = List(2, 4, 6, 8, 10, 12, 14, 16, 18)
 
   "Head option" - {
     "When retrieving head from an empty stream" - {
@@ -73,11 +74,15 @@ class StreamSpec extends FreeSpec {
     "While retrieving first 5 elements of an empty stream" - {
       "Should return an empty stream" in {
         assert(emptyStream.take(5) == empty)
+        assert(emptyStream.takeUnfold(5) == empty)
+        assert(emptyStream.takeUnfold2(5) == empty)
       }
     }
     "While retrieving first 3 elements of a stream" - {
       "Should correctly return the first 3 elements of the given stream" in {
         assert(s1.take(3).toList == List(1, 2, 3))
+        assert(fibs.takeUnfold(5).toList == List(0, 1, 1, 2, 3))
+        assert(fibs.takeUnfold2(5).toList == List(0, 1, 1, 2, 3))
       }
     }
   }
@@ -102,6 +107,7 @@ class StreamSpec extends FreeSpec {
     "While taking only odd elements from a stream of integers" - {
       "Should return the odd elements" in {
         assert(s1.takeWhile(_ % 2 != 0).toList == List(1))
+        assert(s1.takeWhileUnfold(_ % 2 != 0).toList == List(1))
       }
       "Should not mutate the original stream" in {
         assert(s1.toList == l1)
@@ -110,6 +116,7 @@ class StreamSpec extends FreeSpec {
     "While taking only odd elements from an empty stream" - {
       "Should return an empty stream" in {
         assert(emptyStream.takeWhile(_ % 2 != 0) == empty)
+        assert(emptyStream.takeWhileUnfold(_ % 2 != 0) == empty)
       }
     }
     "While taking (takeWhile2) only odd elements from a stream of integers" - {
@@ -138,7 +145,8 @@ class StreamSpec extends FreeSpec {
         assert(!emptyStream.exists(_ == 1))
       }
     }
-    "While checking existence (exists2) of an element in a stream of integers with that element in there" - {
+    "While checking existence (exists2) of an element in a stream of integers with that element " +
+      "in there" - {
       "Should return true" in {
         assert(s1.exists2(_ >= 9))
       }
@@ -167,12 +175,14 @@ class StreamSpec extends FreeSpec {
   }
 
   "For all" - {
-    "While checking whether all elements in a stream of integers (all matching predicate) match the given predicate" - {
+    "While checking whether all elements in a stream of integers (all matching predicate) match " +
+      "the given predicate" - {
       "Should return true" in {
         assert(s1.forAll(_ > 0))
       }
     }
-    "While checking whether all elements in an empty stream of integers match the given predicate" - {
+    "While checking whether all elements in an empty stream of integers match the given " +
+      "predicate" - {
       "Should return true" in {
         assert(emptyStream.forAll(_ > 0))
       }
@@ -183,11 +193,13 @@ class StreamSpec extends FreeSpec {
     "When an integer stream is requested to be transformed by adding 1 to each of its elements" - {
       "Should return a transformed integer stream with 1 added to each of its elements" in {
         assert(s1.map(_ + 1).toList == l2)
+        assert(s1.mapUnfold(_ + 1).toList == l2)
       }
     }
     "When an empty stream is requested to be transformed by adding 1 to each of its elements" - {
       "Should return an empty stream" in {
         assert(emptyStream.map(_ + 1) == empty)
+        assert(emptyStream.mapUnfold(_ + 1) == empty)
       }
     }
   }
@@ -206,7 +218,8 @@ class StreamSpec extends FreeSpec {
   }
 
   "Flat map" - {
-    "When a stream is requested to be doubled up i.e. each element in the stream should appear twice" - {
+    "When a stream is requested to be doubled up i.e. each element in the stream should " +
+      "appear twice" - {
       "Should return the doubled up stream" in {
         assert(s1.flatMap(a => cons(a, cons(a, empty))).toList == l4)
       }
@@ -301,6 +314,50 @@ class StreamSpec extends FreeSpec {
         assert(unfold2(5)(n => Some((n, n + 1))).take(3).toList == List(5, 6, 7))
         assert(unfold3(0)(_ => None) == emptyStream)
         assert(unfold3(5)(n => Some((n, n + 1))).take(3).toList == List(5, 6, 7))
+      }
+    }
+  }
+
+  "Zip with" - {
+    "When two streams of integers are merged such that corresponding elements are added" - {
+      "Should return a new stream with each element being sum of two corresponding of the two " +
+        "given streams" in {
+        assert(fibs.zipWithUnfold(ones)((a, b) => a + b).take(5).toList == List(1, 2, 2, 3, 4))
+        assert(s1.zipWithUnfold(s1)((a, b) => a + b).take(9).toList == l7)
+      }
+    }
+    "When two (or one of the two being) empty streams are merged such that corresponding " +
+      "elements are added" - {
+      "Should return an empty stream" in {
+        assert(emptyStream.zipWithUnfold(emptyStream)((a, b) => a + b).take(5) == empty)
+        assert(ones.zipWithUnfold(emptyStream)((a, b) => a + b).take(5) == empty)
+        assert(emptyStream.zipWithUnfold(ones)((a, b) => a + b).take(5) == empty)
+      }
+    }
+  }
+
+  "Zip all" - {
+    "When two streams of integers are zipped up" - {
+      "Should return a new stream of option pairs with each element in the pair representing " +
+        "an option value in the original stream" in {
+        assert(s1.zipAllUnfold(ones).take(3).toList ==
+          List((Some(1), Some(1)), (Some(2), Some(1)), (Some(3), Some(1))))
+        assert(s1.zipAll(ones).take(3).toList ==
+          List((Some(1), Some(1)), (Some(2), Some(1)), (Some(3), Some(1))))
+      }
+    }
+    "When two (or one of the two being) empty streams are zipped up" - {
+      "Should return an empty stream" in {
+        assert(emptyStream.zipAllUnfold(emptyStream).take(5) == empty)
+        assert(emptyStream.zipAll(emptyStream).take(5) == empty)
+        assert(ones.zipAllUnfold(emptyStream).take(3).toList ==
+          List((Some(1), None), (Some(1), None), (Some(1), None)))
+        assert(ones.zipAll(emptyStream).take(3).toList ==
+          List((Some(1), None), (Some(1), None), (Some(1), None)))
+        assert(emptyStream.zipAllUnfold(ones).take(3).toList ==
+          List((None, Some(1)), (None, Some(1)), (None, Some(1))))
+        assert(emptyStream.zipAll(ones).take(3).toList ==
+          List((None, Some(1)), (None, Some(1)), (None, Some(1))))
       }
     }
   }
