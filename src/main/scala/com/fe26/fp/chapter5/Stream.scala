@@ -100,7 +100,7 @@ sealed trait Stream[+A] {
 
   def zipWithUnfold[B, C](s2: Stream[B])(f: (A, B) => C): Stream[C] = unfold((this, s2)) {
     case (Cons(s1h, s1t), Cons(s2h, s2t)) => Some((f(s1h(), s2h()), (s1t(), s2t())))
-    // could combine the 3 cases below in to one e.g. case _ => None
+    // could combine the 3 cases below in to one e.g. `case _ => None`
     case (Empty, Empty) => None
     case (Cons(_, _), Empty) => None
     case (Empty, Cons(_, _)) => None
@@ -113,7 +113,7 @@ sealed trait Stream[+A] {
     case (Empty, Empty) => None
   }
 
-  // Answers from the book suggest generalising zip all to the following
+  // Answers from the book suggest generalising `zipAll` to the following
   def zipWithAll[B, C](s2: Stream[B])(f: (Option[A], Option[B]) => C): Stream[C] =
     unfold((this, s2)) {
       case (Empty, Empty) => None
@@ -122,8 +122,40 @@ sealed trait Stream[+A] {
       case (Cons(s1h, s1t), Cons(s2h, s2t)) => Some(f(Some(s1h()), Some(s2h())) -> (s1t() -> s2t()))
     }
 
-  // And then zipAll could be simplified to
+  // And then `zipAll` could be simplified to
   def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] = zipWithAll(s2)((_,_))
+
+  /* Exercise 5.14 */
+  /*
+  `s startsWith s2` when corresponding elements of `s` and `s2` are all equal, until the point that
+  `s2` is exhausted. If `s` is exhausted first, or we find an element that doesn't match, we
+  terminate early. Using non-strictness, we can compose these three separate logical steps--the
+  zipping, the termination when the second stream is exhausted, and the termination if a
+  non-matching element is found or the first stream is exhausted.
+   */
+  def startsWith[B](s2: Stream[B]): Boolean = zipAll(s2).takeWhile(_._2.isDefined).forAll {
+    case (Some(a), Some(b)) => a == b
+    case _ => false
+  }
+
+  /* Exercise 5.15 */
+  def tails: Stream[Stream[A]] = unfold(this) {
+    case Cons(h, t) => Some((cons(h(), t()), cons(h(), t()) drop 1))
+    case Empty => None
+  } append Stream(empty)
+
+  def hasSubsequence[B](s: Stream[B]): Boolean = tails exists (_ startsWith s)
+
+  /* Exercise 5.16 */
+  def scanRight[B](z: B)(f: (A, => B) => B): Stream[B] = foldRight((z, Stream(z)))((a, p0) => {
+    /*
+    / `p0` is passed by-name and used in by-name args in `f` and `cons`. So use `lazy val` to
+    ensure only one evaluation.
+     */
+    lazy val p1 = p0
+    val b2 = f(a, p1._1)
+    (b2, cons(b2, p1._2))
+  })._2
 }
 
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]

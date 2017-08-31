@@ -361,4 +361,65 @@ class StreamSpec extends FreeSpec {
       }
     }
   }
+
+  "Starts with" - {
+    "When a stream is checked to be a superset of another that is its subset" - {
+      "Should return true" in {
+        assert(s1.startsWith(Stream(1, 2, 3)))
+        assert(ones.startsWith(emptyStream))
+      }
+    }
+    "When a stream is checked to be a superset of another that is not its subset" - {
+      "Should return false" in {
+        assert(!fibs.startsWith(ones))
+        assert(!emptyStream.startsWith(ones))
+      }
+    }
+  }
+
+  "Has subsequence" - {
+    "When a stream of integers and another with subset of integers is passed in" - {
+      "Should acknowledge having subsequence" in {
+        assert(s1.hasSubsequence(Stream(1, 2)))
+      }
+    }
+
+    "When a stream of integers with another not subset of those integers is passed in" - {
+      "Should confirm has no subsequence" in {
+        assert(!s1.hasSubsequence(s2))
+      }
+    }
+
+    "When two empty streams are passed in" - {
+      "Should consider having subsequence" in {
+        assert(emptyStream.hasSubsequence(emptyStream))
+      }
+    }
+
+    "When an empty superset stream and a subset stream of couple of integers is passed in" - {
+      "Should return false" in {
+        assert(!emptyStream.hasSubsequence(Stream(1, 2)))
+      }
+    }
+
+    "When two exactly same streams of integers are passed in" - {
+      "Should be considered having subsequence" in {
+        assert(s1.hasSubsequence(s1))
+      }
+    }
+
+    "When a superset stream with a few elements and an empty subset is passed in" - {
+      "Should also be considered having subsequence" - {
+        assert(s1.hasSubsequence(emptyStream))
+      }
+    }
+  }
+
+  "Scan right" - {
+    "When Stream(1, 2, 3) is passed in with a sum function" - {
+      "Should return Stream(6, 5, 3, 0)" in {
+        assert(Stream(1, 2, 3).scanRight(0)(_ + _).toList == List(6, 5, 3, 0))
+      }
+    }
+  }
 }
