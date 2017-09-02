@@ -71,4 +71,82 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
       assert(n1 >= 0 && n2 >= 0)
     }
   }
+
+  feature("Next double") {
+    scenario("Client generates next double") {
+      Given("a simple random number generator with seed 42")
+      val rNG = Simple(42)
+
+      When("generate the next double")
+      val (d1, rNG2) = double(rNG)
+
+      And("generate next's next double")
+      val (d2, _) = double(rNG2)
+
+      Then("the next double is generated successfully")
+      assert(d1 == 0.007524831686168909)
+
+      And("the next's next double is generated successfully")
+      assert(d2 == 0.5967354848980904)
+
+      And("the next and the next's next double are between 0 and 1")
+      assert(d1 < 1 && d2 < 1)
+    }
+  }
+
+  feature("Int double") {
+    scenario("Client generates next pair of integer double") {
+      Given("a simple random number generator with seed 42")
+      val rNG = Simple(42)
+
+      When("the next pair of integer double is generated")
+      val ((int, d), _) = intDouble(rNG)
+
+      Then("the next pair pair of integer double is generated successfully")
+      assert(int == 16159453)
+      assert(d == 0.5967354848980904)
+    }
+  }
+
+  feature("Double int") {
+    scenario("Client generates next pair of double integer") {
+      Given("a simple random number generator with seed 42")
+      val rNG = Simple(42)
+
+      When("the next pair of double integer is generated")
+      val ((d, int), _) = doubleInt(rNG)
+
+      Then("the next pair of integer double is generated successfully")
+      assert(d == 0.5967354848980904)
+      assert(int == 16159453)
+    }
+  }
+
+  feature("Triple double") {
+    scenario("Client generates tuple of 3 doubles") {
+      Given("a simple random number generator with seed 42")
+      val rNG = Simple(42)
+
+      When("the next tuple of 3 doubles is generated")
+      val ((d1, d2, d3), _) = double3(rNG)
+
+      Then("the next tuple of 3 doubles is generated successfully")
+      assert(d1 == 0.007524831686168909)
+      assert(d2 == 0.5967354848980904)
+      assert(d3 == 0.15846728393808007)
+    }
+  }
+
+  feature("List of random integers") {
+    scenario("Client generates a list of random integers") {
+      Given("a simple random number generator with seed 42")
+      val rNG = Simple(42)
+
+      When("list of 3 random numbers is generated")
+      val (iList, _) = ints(3)(rNG)
+
+      Then("a list of 3 random numbers is generated successfully")
+      assert(iList == List(16159453, -1281479697, -340305902))
+    }
+  }
 }
