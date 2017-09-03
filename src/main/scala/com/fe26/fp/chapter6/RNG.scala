@@ -62,4 +62,66 @@ object RNG {
 
     loop(1, Nil, rng)
   }
+
+  /*
+  Each of our functions has a type of the form `RNG => (A, RNG)` for some type `A`.
+
+  Functions of this type are called state actions or state transitions because they transform `RNG`
+  states from one to the next.
+   */
+  type Rand[+A] = RNG => (A, RNG)
+
+  /*
+  We can now turn methods such as `RNG`'s nextInt into values of this new type.
+   */
+  def int: Rand[Int] = _.nextInt
+
+  /*
+  We want to write combinators that let us combine `Rand` actions while avoiding explicitly passing
+  along the `RNG` state. We’ll end up with a kind of domain-specific language that does all of the
+  passing for us. For example, a simple `RNG` state transition is the `unit` action, which passes
+  the `RNG` state through without using it, always returning a constant value rather than a random
+  value.
+   */
+  def unit[A](a: A): Rand[A] = rng => (a, rng)
+
+  /*
+  There’s also map for transforming the output of a state action without modifying the state
+  itself. Remember, `Rand[A]` is just a type alias for a function type `RNG => (A, RNG)`, so this
+  is just a kind of function composition.
+   */
+  def map[A, B](u: Rand[A])(f: A => B): Rand[B] = rng => {
+    val (a, rng2) = u(rng)
+    (f(a), rng2)
+  }
+
+  /* Exercise 6.5 */
+  val randDouble: Rand[Double] = map(nonNegativeInt)(_ / (Int.MaxValue.toDouble + 1))
+
+  /* Exercise 6.6 */
+  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = rNG => {
+    val (a, rNG2) = ra(rNG)
+    val (b, rNG3) = rb(rNG2)
+    (f(a, b), rNG3)
+  }
+
+  /*
+  We only have to write the `map2` combinator once, and then we can use it to combine arbitrary
+  RNG state actions. For example, if we have an action that generates values of type `A` and an
+  action to generate values of type `B`, then we can combine them into one action that generates
+  pairs of both `A` and `B`.
+   */
+  def both[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] = map2(ra, rb)((_, _))
+
+  val randIntDouble: Rand[(Int, Double)] = both(int, double)
+
+  val randDoubleInt: Rand[(Double, Int)] = both(double, int)
+
+  /*
+  Exercise 6.7: Combine a whole list of `RNG` transitions.
+   */
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] =
+    fs.foldRight(unit(List[A]()))((f, acc) => map2(f, acc)(_ :: _))
+
+  def _ints(count: Int): Rand[List[Int]] = sequence(List.fill(count)(int))
 }

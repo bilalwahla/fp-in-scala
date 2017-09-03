@@ -43,7 +43,10 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
       val (n1Again, _) = rNG.nextInt
 
       And("next's next integer is generated")
-      val (n2, _) = rNG2.nextInt
+      val (n2, rNG3) = rNG2.nextInt
+
+      And("3rd random integer is generated")
+      val (n3, _) = int(rNG3)
 
       Then("next integer is generated successfully")
       assert(n1 == 16159453)
@@ -53,6 +56,9 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
 
       And("next's next integer is generated successfully")
       assert(n2 == -1281479697)
+
+      And("3rd random integer is generated successfully")
+      assert(n3 == -340305902)
     }
   }
 
@@ -73,10 +79,10 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
   }
 
   feature("Next double") {
-    scenario("Client generates next double") {
-      Given("a simple random number generator with seed 42")
-      val rNG = Simple(42)
+    Given("a simple random number generator with seed 42")
+    val rNG = Simple(42)
 
+    scenario("Client generates next double") {
       When("generate the next double")
       val (d1, rNG2) = double(rNG)
 
@@ -92,15 +98,32 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
       And("the next and the next's next double are between 0 and 1")
       assert(d1 < 1 && d2 < 1)
     }
+
+    scenario("Client generates next double using map") {
+      When("generate the next double")
+      val (d, _) = randDouble(rNG)
+
+      Then("the next double is generated successfully")
+      assert(d == 0.007524831686168909)
+    }
   }
 
   feature("Int double") {
-    scenario("Client generates next pair of integer double") {
-      Given("a simple random number generator with seed 42")
-      val rNG = Simple(42)
+    Given("a simple random number generator with seed 42")
+    val rNG = Simple(42)
 
+    scenario("Client generates next pair of integer double") {
       When("the next pair of integer double is generated")
       val ((int, d), _) = intDouble(rNG)
+
+      Then("the next pair pair of integer double is generated successfully")
+      assert(int == 16159453)
+      assert(d == 0.5967354848980904)
+    }
+
+    scenario("Client generates next pair of integer double using map2") {
+      When("the next pair of integer double is generated")
+      val ((int, d), _) = randIntDouble(rNG)
 
       Then("the next pair pair of integer double is generated successfully")
       assert(int == 16159453)
@@ -109,16 +132,25 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
   }
 
   feature("Double int") {
-    scenario("Client generates next pair of double integer") {
-      Given("a simple random number generator with seed 42")
-      val rNG = Simple(42)
+    Given("a simple random number generator with seed 42")
+    val rNG = Simple(42)
 
+    scenario("Client generates next pair of double integer") {
       When("the next pair of double integer is generated")
       val ((d, int), _) = doubleInt(rNG)
 
       Then("the next pair of integer double is generated successfully")
       assert(d == 0.5967354848980904)
       assert(int == 16159453)
+    }
+
+    scenario("Client generates next pair of double integer using map2") {
+      When("the next pair of double integer is generated")
+      val ((d, int), _) = randDoubleInt(rNG)
+
+      Then("the next pair of integer double is generated successfully")
+      assert(d == 0.007524831686168909)
+      assert(int == -1281479697)
     }
   }
 
@@ -138,15 +170,63 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
   }
 
   feature("List of random integers") {
-    scenario("Client generates a list of random integers") {
-      Given("a simple random number generator with seed 42")
-      val rNG = Simple(42)
+    Given("a simple random number generator with seed 42")
+    val rNG = Simple(42)
 
+    scenario("Client generates a list of random integers") {
       When("list of 3 random numbers is generated")
       val (iList, _) = ints(3)(rNG)
 
       Then("a list of 3 random numbers is generated successfully")
       assert(iList == List(16159453, -1281479697, -340305902))
+    }
+
+    scenario("Client generates a list of random integers using sequence (combined state actions)") {
+      When("list of 3 random numbers is generated")
+      val s = _ints(3)
+      val (iList, _) = s(rNG)
+
+      Then("a list of 3 random numbers is generated successfully")
+      assert(iList == List(16159453, -1281479697, -340305902))
+    }
+  }
+
+  feature("Unit") {
+    scenario("Clients creates a unit") {
+      Given("a simple random number generator with seed 42")
+      val rNG = Simple(42)
+
+      When("a unit is created using a constant value of 2")
+      val u = unit(2)
+
+      Then("it should return a `RNG => (2, RNG)` function")
+      assert(u.isInstanceOf[Rand[Int]])
+
+      And("passing this function with a random number generator, returns the constant value")
+      val (c, rNG2) = u(rNG)
+      assert(c == 2)
+      assert(rNG2 == rNG)
+    }
+  }
+
+  feature("Map") {
+    scenario("Client transforms the output of a state action") {
+      Given("a simple random number generator")
+      val rNG = Simple(42)
+
+      When("map is used to transform the output of a state action to generate an `Int` that’s " +
+        "greater than or equal to zero and divisible by two")
+      /*
+      Here we could use any of our earlier implementations that essentially are `RNG => (2, RNG)`
+       */
+      val m = map(nonNegativeInt)(a => a - a % 2)
+
+      Then("it should return a `RNG => (nonNegativeInt, RNG)` function")
+      assert(m.isInstanceOf[Rand[Int]])
+
+      And("passing this function with a random number generator, returns a positive even integer")
+      val (e, _) = m(rNG)
+      assert(e == 16159452)
     }
   }
 }
