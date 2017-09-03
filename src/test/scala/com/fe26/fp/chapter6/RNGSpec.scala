@@ -46,7 +46,8 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
       val (n2, rNG3) = rNG2.nextInt
 
       And("3rd random integer is generated")
-      val (n3, _) = int(rNG3)
+      val ri = int
+      val (n3, _) = ri(rNG3)
 
       Then("next integer is generated successfully")
       assert(n1 == 16159453)
@@ -102,6 +103,15 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
     scenario("Client generates next double using map") {
       When("generate the next double")
       val (d, _) = randDouble(rNG)
+
+      Then("the next double is generated successfully")
+      assert(d == 0.007524831686168909)
+    }
+
+    scenario("Client generates next refined double") {
+      When("generate the next double")
+      val rd = doubleRefined
+      val (d, _) = rd(rNG)
 
       Then("the next double is generated successfully")
       assert(d == 0.007524831686168909)

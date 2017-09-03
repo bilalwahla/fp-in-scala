@@ -33,6 +33,11 @@ object RNG {
     (int / (Int.MaxValue.toDouble + 1), rnG2)
   }
 
+  def doubleRefined: Rand[Double] = rng => {
+    val (int, rnG2) = nonNegativeInt(rng)
+    (int / (Int.MaxValue.toDouble + 1), rnG2)
+  }
+
   // Exercise 6.3
 
   def intDouble(rng: RNG): ((Int,Double), RNG) = {
