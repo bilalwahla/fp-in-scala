@@ -133,11 +133,14 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
 
     scenario("Client generates next pair of integer double using map2") {
       When("the next pair of integer double is generated")
-      val ((int, d), _) = randIntDouble(rNG)
+      val ((int1, d1), _) = randIntDouble(rNG)
+      val ((int2, d2), _) = randIntDouble2(rNG)
 
       Then("the next pair pair of integer double is generated successfully")
-      assert(int == 16159453)
-      assert(d == 0.5967354848980904)
+      assert(int1 == 16159453)
+      assert(d1 == 0.5967354848980904)
+      assert(int2 == 16159453)
+      assert(d2 == 0.5967354848980904)
     }
   }
 
@@ -229,14 +232,58 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
       /*
       Here we could use any of our earlier implementations that essentially are `RNG => (2, RNG)`
        */
-      val m = map(nonNegativeInt)(a => a - a % 2)
+      val m1 = map(nonNegativeInt)(a => a - a % 2)
+      val m2 = mapUsingFlatMap(nonNegativeInt)(a => a - a % 2)
 
       Then("it should return a `RNG => (nonNegativeInt, RNG)` function")
-      assert(m.isInstanceOf[Rand[Int]])
+      assert(m1.isInstanceOf[Rand[Int]])
 
       And("passing this function with a random number generator, returns a positive even integer")
-      val (e, _) = m(rNG)
-      assert(e == 16159452)
+      val (i1, _) = m1(rNG)
+      assert(i1 == 16159452)
+      val (i2, _) = m2(rNG)
+      assert(i2 == 16159452)
+    }
+  }
+
+  feature("Non-negative less than") {
+    Given("a simple random number generator")
+    val rNG1 = Simple(42)
+    val n1 = 500
+    val rNG2 = Simple(0)
+    val n2 = -1
+
+    scenario("Client generates a non-negative integer less than n using map") {
+      When("a non-negative integer less than n is generated")
+      val m = nonNegativeLessThanSkewed(n1)
+      val(int, _) = m(rNG1)
+
+      Then("a skewed non-negative integer less than n is generated successfully")
+      assert(int >= 0 && int < n1)
+    }
+
+    scenario("Client generates a non-negative integer less than n using an explicit implementation") {
+      When("a non-negative integer less than n is generated")
+      val m1 = nonNegativeLessThan(n1)
+      val(int, _) = m1(rNG1)
+      val m2 = nonNegativeLessThan(n2)
+      val(int2, _) = m2(rNG2)
+
+      Then("a non-negative integer less than n is generated successfully")
+      assert(int >= 0 && int < n1)
+      assert(int2 >= 0 && int2 < n1)
+    }
+
+    scenario("Client generates a non-negative integer less than n using flat map") {
+      When("a non-negative integer less than n is generated")
+      val m = nonNegativeLessThanFlatMap(n1)
+      val(int, _) = m(rNG1)
+      val m2 = nonNegativeLessThanFlatMap(n2)
+      val(int2, _) = m2(rNG2)
+
+      Then("a non-negative integer less than n is generated successfully")
+      assert(int >= 0 && int < n1)
+      assert(int2 >= 0 && int2 < n1)
     }
   }
 }
