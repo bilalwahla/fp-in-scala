@@ -1,5 +1,7 @@
 package com.fe26.fp.chapter6
 
+import com.fe26.fp.chapter6.RNG.Rand
+
 trait RNG {
   def nextInt: (Int, RNG)
 }
@@ -178,4 +180,37 @@ object RNG {
   def both2[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] = map2UsingFlatMap(ra, rb)((_, _))
 
   val randIntDouble2: Rand[(Int, Double)] = both2(int, double)
+}
+
+// A general state action data type
+
+import State._  // This is to be able to use State companion object
+
+case class State[S, +A](run: S => (A, S)) {
+  /* Exercise 6.10 */
+
+  def map[B](f: A => B): State[S, B] = flatMap(a => unit(f(a)))
+
+  def map2[B, C](sb: State[S, B])(f: (A, B) => C): State[S, C] = flatMap(a => sb.map(b => f(a, b)))
+
+  def flatMap[B](f: A => State[S, B]): State[S, B] = State(s => {
+    val (a, s2) = run(s)
+    f(a).run(s2)
+  })
+}
+
+sealed trait Input
+
+case object Coin extends Input
+
+case object Turn extends Input
+
+case class Machine(locked: Boolean, candies: Int, coins: Int)
+
+object State {
+  type Rand[A] = State[RNG, A]
+
+  def unit[S, A](a: A): State[S, A] = State(s => (a, s))
+
+//  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
 }

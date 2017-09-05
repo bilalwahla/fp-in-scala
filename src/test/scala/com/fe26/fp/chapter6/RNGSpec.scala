@@ -286,4 +286,29 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
       assert(int2 >= 0 && int2 < n1)
     }
   }
+
+  feature("State") {
+    Given("a simple random number generator")
+    val rNG = Simple(42)
+
+    scenario("Map - Client transforms the output of a state action") {
+      When("map is used to transform the output of a state action to generate an `Int` that’s " +
+        "greater than or equal to zero and divisible by two")
+      val s = State(nonNegativeInt).map(a => a - a % 2)
+
+      Then("running this state with a random number generator, returns a positive even integer")
+      val (i, _) = s.run(rNG)
+      assert(i == 16159452)
+    }
+
+    scenario("Map 2 - Client generates the next random integer and a double") {
+      When("the next random integer and a double is prepared to be generated")
+      val s = State(int).map2(State(double))((_, _))
+
+      Then("running this state generates the next random integer and a double")
+      val ((i, d), _) = s.run(rNG)
+      assert(i == 16159453)
+      assert(d == 0.5967354848980904)
+    }
+  }
 }
