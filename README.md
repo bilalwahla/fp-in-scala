@@ -6,5 +6,5 @@ When one is new to a functional programming language, paradigm shift, a differen
 I believe, is quite a lot to take in. Introducing yourself to this very different style of programming demands practising the usage of especially monads 
 amongst other things. 
 
-I have used TDD approach so that I not only understand explained concepts as well as I could but understand their applications in a way that I can refer 
+I have used TDD approach (well various styles of it offered by [>ScalaTest](http://www.scalatest.org)) so that I not only understand explained concepts as well as I could but understand their applications in a way that I can refer 
 back to them easily. TDD offers a great playground to do just that.

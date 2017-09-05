@@ -31,11 +31,11 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
   info("In a way that transition from one state to the next is explicit")
   info("Subsequently making it a purely functional API")
 
+  Given("a simple random number generator with a seed of 42")
+  val rNG = Simple(42)
+
   feature("Next integer") {
     scenario("Client generates the next integer") {
-      Given("a simple random number generator with a seed of 42")
-      val rNG = Simple(42)
-
       When("the next integer is generated")
       val (n1, rNG2) = rNG.nextInt
 
@@ -65,9 +65,6 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
 
   feature("Non-negative integer") {
     scenario("Client generates next non-negative integer") {
-      Given("a simple random number generator with seed 42")
-      val rNG = Simple(42)
-
       When("next non-negative integer is generated")
       val (n1, rNG2) = nonNegativeInt(rNG)
 
@@ -80,9 +77,6 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
   }
 
   feature("Next double") {
-    Given("a simple random number generator with seed 42")
-    val rNG = Simple(42)
-
     scenario("Client generates next double") {
       When("generate the next double")
       val (d1, rNG2) = double(rNG)
@@ -119,9 +113,6 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
   }
 
   feature("Int double") {
-    Given("a simple random number generator with seed 42")
-    val rNG = Simple(42)
-
     scenario("Client generates next pair of integer double") {
       When("the next pair of integer double is generated")
       val ((int, d), _) = intDouble(rNG)
@@ -145,9 +136,6 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
   }
 
   feature("Double int") {
-    Given("a simple random number generator with seed 42")
-    val rNG = Simple(42)
-
     scenario("Client generates next pair of double integer") {
       When("the next pair of double integer is generated")
       val ((d, int), _) = doubleInt(rNG)
@@ -169,9 +157,6 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
 
   feature("Triple double") {
     scenario("Client generates tuple of 3 doubles") {
-      Given("a simple random number generator with seed 42")
-      val rNG = Simple(42)
-
       When("the next tuple of 3 doubles is generated")
       val ((d1, d2, d3), _) = double3(rNG)
 
@@ -183,9 +168,6 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
   }
 
   feature("List of random integers") {
-    Given("a simple random number generator with seed 42")
-    val rNG = Simple(42)
-
     scenario("Client generates a list of random integers") {
       When("list of 3 random numbers is generated")
       val (iList, _) = ints(3)(rNG)
@@ -206,9 +188,6 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
 
   feature("Unit") {
     scenario("Clients creates a unit") {
-      Given("a simple random number generator with seed 42")
-      val rNG = Simple(42)
-
       When("a unit is created using a constant value of 2")
       val u = unit(2)
 
@@ -224,9 +203,6 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
 
   feature("Map") {
     scenario("Client transforms the output of a state action") {
-      Given("a simple random number generator")
-      val rNG = Simple(42)
-
       When("map is used to transform the output of a state action to generate an `Int` that’s " +
         "greater than or equal to zero and divisible by two")
       /*
@@ -247,8 +223,7 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
   }
 
   feature("Non-negative less than") {
-    Given("a simple random number generator")
-    val rNG1 = Simple(42)
+    Given("an n of 500 and simple random number generator with a seed of 0 and another n of -1")
     val n1 = 500
     val rNG2 = Simple(0)
     val n2 = -1
@@ -256,7 +231,7 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
     scenario("Client generates a non-negative integer less than n using map") {
       When("a non-negative integer less than n is generated")
       val m = nonNegativeLessThanSkewed(n1)
-      val(int, _) = m(rNG1)
+      val(int, _) = m(rNG)
 
       Then("a skewed non-negative integer less than n is generated successfully")
       assert(int >= 0 && int < n1)
@@ -265,7 +240,7 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
     scenario("Client generates a non-negative integer less than n using an explicit implementation") {
       When("a non-negative integer less than n is generated")
       val m1 = nonNegativeLessThan(n1)
-      val(int, _) = m1(rNG1)
+      val(int, _) = m1(rNG)
       val m2 = nonNegativeLessThan(n2)
       val(int2, _) = m2(rNG2)
 
@@ -277,7 +252,7 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
     scenario("Client generates a non-negative integer less than n using flat map") {
       When("a non-negative integer less than n is generated")
       val m = nonNegativeLessThanFlatMap(n1)
-      val(int, _) = m(rNG1)
+      val(int, _) = m(rNG)
       val m2 = nonNegativeLessThanFlatMap(n2)
       val(int2, _) = m2(rNG2)
 
@@ -288,9 +263,6 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
   }
 
   feature("State") {
-    Given("a simple random number generator")
-    val rNG = Simple(42)
-
     scenario("Map - Client transforms the output of a state action") {
       When("map is used to transform the output of a state action to generate an `Int` that’s " +
         "greater than or equal to zero and divisible by two")
@@ -309,6 +281,79 @@ class RNGSpec extends FeatureSpec with GivenWhenThen {
       val ((i, d), _) = s.run(rNG)
       assert(i == 16159453)
       assert(d == 0.5967354848980904)
+    }
+  }
+
+  feature("Automaton - Candy dispenser") {
+    scenario("Inserting a coin into a locked machine with a candy left, will unlock it") {
+      Given("a locked machine with a candy left")
+      val m = Machine(locked = true, 1, 0)
+
+      When("a coin is inserted into this locked machine")
+      val ((coins, candies), m2) = Candy.simulateMachine(List(Coin)).run(m)
+
+      Then("machine will unlock")
+      assert(candies == 1)
+      assert(coins == 1)
+      assert(!m2.locked)
+    }
+
+    scenario("Turning knob on an unlocked machine will make it dispense candy and become locked") {
+      Given("an unlocked machine")
+      val m = Machine(locked = false, 1, 1)
+
+      When("the knob on the unlocked machine is turned")
+      val ((coins, candies), m2) = Candy.simulateMachine(List(Turn)).run(m)
+
+      Then("machine will dispense candy")
+      assert(candies == 0)
+      assert(coins == 1)
+      assert(m2.locked)
+    }
+
+    scenario("Turning knob on a locked machine does nothing") {
+      Given("an locked machine")
+      val m = Machine(locked = true, 11, 0)
+
+      When("the knob on the locked machine is turned")
+      val ((coins, candies), m2) = Candy.simulateMachine(List(Turn)).run(m)
+
+      Then("locked machine will does nothing")
+      assert(candies == 11)
+      assert(coins == 0)
+      assert(m2.locked)
+    }
+
+    scenario("Inserting a coin into an unlocked machine does nothing") {
+      Given("an unlocked machine")
+      val m = Machine(locked = false, 11, 1)
+
+      When("the knob on the locked machine is turned")
+      val ((coins, candies), m2) = Candy.simulateMachine(List(Coin)).run(m)
+
+      Then("already unlocked machine will does nothing")
+      assert(candies == 11)
+      assert(coins == 1)
+      assert(!m2.locked)
+    }
+
+    scenario("A machine that’s out of candy ignores all inputs") {
+      Given("a locked out of candy machine")
+      val m = Machine(locked = true, 0, 12)
+
+      When("a coin is inserted into this locked machine")
+      val ((coins1, candies1), m2) = Candy.simulateMachine(List(Coin)).run(m)
+
+      And("the knob on the locked machine is turned")
+      val ((coins2, candies2), m3) = Candy.simulateMachine(List(Turn)).run(m)
+
+      Then("out of candy machine ignores all inputs")
+      assert(coins1 == 12)
+      assert(candies1 == 0)
+      assert(m2.locked)
+      assert(coins2 == 12)
+      assert(candies2 == 0)
+      assert(m3.locked)
     }
   }
 }
